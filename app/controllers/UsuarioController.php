@@ -49,10 +49,16 @@ class UsuarioController extends Usuario implements IApiUsable
     public function ModificarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
-
+        $usuarioId = $args['usuarioId'];
+        $nombre = $parametros['usuario'];
+        $clave = $parametros['clave'];
+        // Creamos el usuario
+        $usr = new Usuario();
+        $usr->id = $usuarioId;
+        $usr->usuario = $nombre;
+        $usr->clave = $clave;
+        
+        Usuario::modificarUsuario($usr);
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
         $response->getBody()->write($payload);
@@ -62,9 +68,7 @@ class UsuarioController extends Usuario implements IApiUsable
 
     public function BorrarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
-
-        $usuarioId = $parametros['usuarioId'];
+        $usuarioId = $args['usuarioId'];
         Usuario::borrarUsuario($usuarioId);
 
         $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
@@ -73,4 +77,27 @@ class UsuarioController extends Usuario implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    public function Login($request, $response, $args)
+    {
+
+      $parametros = $request->getParsedBody();
+      // Creamos el usuario
+      $usr = new Usuario();
+      $usr->usuario = $parametros['usuario'];
+      $usr->clave = $parametros['clave'];
+      $usuario = Usuario::obtenerUsuario($usr->usuario);
+      
+      if($usuario->usuario==$usr->usuario &&$usuario->clave == $usr->clave){
+        $response->getBody()->write("logeado exitosamente");
+      }else{
+        $response->getBody()->write("Error en clave y/o usuario");
+      }
+
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
 }
+
+
+
